@@ -30,17 +30,8 @@
                 height:60;
                 width:60;
             }
-            #circle1{
-               cx:30;
-               cy:30;
-               r:20;
-               stroke:blue;
-               stroke-width:10;
-               fill:red;
-            }
-            #Pcoords{
-                position:fixed;
-            }
+
+            
             #startButton{
                 position: fixed;
                 left:50%;
@@ -69,19 +60,14 @@
             //interval used in game
             var t;
             
-            /**
-            * used as the "main" to execute code
-            */
-            $(function(){
-               setup();
-            });
+
             
             function setup(){
-                $(window).on("mousemove", getCoords);
                 $("#startButton").on("click", start);
             }
             
             function stop(){
+		$(window).off("mousemove");
                 $("#title").text("Game Over");
                 clearInterval(t);
                 $("#divSvg").css("visibility", "hidden");
@@ -92,6 +78,7 @@
             * here is the code to be executed in the "main"
             */
             function start(){
+		$(window).on("mousemove", getCoords);
                 $("#title").text("");
                 $("#divSvg").css("visibility", "visible");
                 $("#startButton").css("visibility", "hidden");
@@ -122,7 +109,7 @@
             
             /**
             * calculates the unit vector from the circle to the
-            * cursor
+            * cursor and translates the circle in that direction
             * @param x the x ccordinate of the cursor
             * @param y the y coordinate of the cursor
             */
@@ -142,8 +129,8 @@
                     Ux = 0;
                     Uy = 0;
                 }
-                //$("#Pcoords").html("Coords: "+Ux+"x "+Uy+"y");
-                translate(Ux, Uy);
+
+                translate(Ux, Uy, 3);
             }
             
             /**
@@ -163,18 +150,26 @@
             * moves the circle in the direction of the cursor
             * @param Ux the x component of the unit vector from circle to cursor
             * @param Uy the y component of the unit vector from circle to cursor
+	    * @param vel the velocity of the circle
             */
-            function translate(Ux, Uy){
+            function translate(Ux, Uy, vel){
                 var origX = parseFloat($("#mainSvg").css("left"));
                 var origY = parseFloat($("#mainSvg").css("top"));
-                origX += Ux;
-                origY += Uy;
+                origX += Ux*vel;
+                origY += Uy*vel;
                 $("#mainSvg").css("left", origX);
                 $("#mainSvg").css("top", origY);
                 if(isCaptured(origX, origY)){
                     stop();
                 }
             }
+
+	    /*
+	    * Used as "main" for code execution
+	    */
+	    $(function(){
+		setup();
+	    });
             
         </script>
     </head>
@@ -185,9 +180,7 @@
                 <circle id = "mainCircle"/>
             </svg>
             
-            <svg id = "projSvg" class = "proj">
-                <circle id= "circle1" class= "proj"/>
-            </svg>
+            
         </div>
         
         <div id = "titleArea">
