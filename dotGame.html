@@ -1,0 +1,197 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <title>
+            Dot Game
+        </title>
+        <script src = "https://static.tumblr.com/ow7hyoy/Siwpa2pdc/jquery-3.3.1.min.js"></script>
+        <style>
+            #divSvg{
+                visibility:hidden;
+            }
+            #mainSvg{
+                height:100;
+                width:100;
+                position:fixed;
+                /*visibility:hidden;*/
+            }
+            #mainSvg #mainCircle{
+                cx:50;
+                cy:50;
+                r:40;
+                stroke:blue;
+                stroke-width:10;
+                fill:red;
+                
+            }
+            #projSvg{
+                left:50%;
+                position:absolute;
+                height:60;
+                width:60;
+            }
+            #circle1{
+               cx:30;
+               cy:30;
+               r:20;
+               stroke:blue;
+               stroke-width:10;
+               fill:red;
+            }
+            #Pcoords{
+                position:fixed;
+            }
+            #startButton{
+                position: fixed;
+                left:50%;
+                top:25%;
+                height: 3em;
+                width: 5em;
+                font-size:2em;
+                border:none;
+                background:#09f;
+            }
+            #startButton:hover{
+                background:#0cf;
+                box-shadow: 0px 0px 10px black;
+            }
+            #titleArea{
+                position:fixed;
+                left:50%;
+                top: 12%;
+                font-size: 2em;
+            }
+        </style>
+        <script>
+            //location of the cursor
+            var x;
+            var y;
+            //interval used in game
+            var t;
+            
+            /**
+            * used as the "main" to execute code
+            */
+            $(function(){
+               setup();
+            });
+            
+            function setup(){
+                $(window).on("mousemove", getCoords);
+                $("#startButton").on("click", start);
+            }
+            
+            function stop(){
+                $("#title").text("Game Over");
+                clearInterval(t);
+                $("#divSvg").css("visibility", "hidden");
+                $("#startButton").css("visibility", "visible");
+            }
+            
+            /**
+            * here is the code to be executed in the "main"
+            */
+            function start(){
+                $("#title").text("");
+                $("#divSvg").css("visibility", "visible");
+                $("#startButton").css("visibility", "hidden");
+               //sets the position of the coordinate output
+               $("#Pcoords").css("top", parseInt($(window).height()) - 60);
+               $("#mainSvg").css("top", $(window).height()*3/4);
+               $("#mainSvg").css("left", $(window).width()/2);
+               t = setInterval(function(){getUv(x,y);}, 1);
+            }
+            
+            /**
+            * event handler for mouse move
+            * updates x and y coordinates of the cursor
+            */
+            function getCoords(){
+                //-50 adjusts so that the centre of the circle move to the cursor
+                //not the top left corner
+                x = event.pageX;
+                y = event.pageY;
+                if(x>=$(window).width()-10 || y>=$(window).height()-10 || x<=10 || y<=10){
+                    stop();
+                }
+                
+                
+                //$("#Pcoords").html("Coords: "+x+"x "+y+"y");
+                //getUv(x,y);
+            }
+            
+            /**
+            * calculates the unit vector from the circle to the
+            * cursor
+            * @param x the x ccordinate of the cursor
+            * @param y the y coordinate of the cursor
+            */
+            function getUv(x, y){
+                var Ux;
+                var Uy;
+                //translation by 50 so that the vector is from the centre of the 
+                //circle to the cursor
+                var origX = parseFloat($("#mainSvg").css("left"))+50;
+                var origY = parseFloat($("#mainSvg").css("top"))+50;
+                var Mv = Math.sqrt(Math.pow((x-origX),2) + Math.pow((y-origY),2));
+                if(Mv !== 0){
+                    Ux = (x-origX)/Mv;
+                    Uy = (y-origY)/Mv;
+                    //$("#Pcoords").text("test");
+                }else{
+                    Ux = 0;
+                    Uy = 0;
+                }
+                //$("#Pcoords").html("Coords: "+Ux+"x "+Uy+"y");
+                translate(Ux, Uy);
+            }
+            
+            /**
+            * determines if the cursor is within the circle
+            * @param origX x coordinate of the circle
+            * @param origY y coordinate of the circle
+            * @return true if cursor is within the circle
+            */
+            function isCaptured(origX, origY){
+                if((x>=origX && x<=origX+100)&&(y>=origY && y<=origY+100)){
+                    return true;
+                }
+                return false;
+            }
+            
+            /**
+            * moves the circle in the direction of the cursor
+            * @param Ux the x component of the unit vector from circle to cursor
+            * @param Uy the y component of the unit vector from circle to cursor
+            */
+            function translate(Ux, Uy){
+                var origX = parseFloat($("#mainSvg").css("left"));
+                var origY = parseFloat($("#mainSvg").css("top"));
+                origX += Ux;
+                origY += Uy;
+                $("#mainSvg").css("left", origX);
+                $("#mainSvg").css("top", origY);
+                if(isCaptured(origX, origY)){
+                    stop();
+                }
+            }
+            
+        </script>
+    </head>
+    <body>
+        <button id="startButton">Play</button>
+        <div id = "divSvg">
+            <svg id = "mainSvg">
+                <circle id = "mainCircle"/>
+            </svg>
+            
+            <svg id = "projSvg" class = "proj">
+                <circle id= "circle1" class= "proj"/>
+            </svg>
+        </div>
+        
+        <div id = "titleArea">
+            <p id = "title"></p>
+        </div>
+    </body>
+</html>
