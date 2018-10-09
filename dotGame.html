@@ -55,8 +55,7 @@
         </style>
         <script>
             //location of the cursor
-            var x;
-            var y;
+            
             //interval used in game
             var t;
             
@@ -78,7 +77,19 @@
             * here is the code to be executed in the "main"
             */
             function start(){
-		$(window).on("mousemove", getCoords);
+		var x;
+		var y;
+		
+		/*$(window).on("mousemove", funtion(){
+			var coords = getCoords();
+			x = coords[0];
+			y = coords[1];
+		});*/
+		$(window).on("mousemove", function(){
+			var coords = getCoords();
+			x = coords[0];
+			y = coords[1];
+		});
                 $("#title").text("");
                 $("#divSvg").css("visibility", "visible");
                 $("#startButton").css("visibility", "hidden");
@@ -96,13 +107,13 @@
             function getCoords(){
                 //-50 adjusts so that the centre of the circle move to the cursor
                 //not the top left corner
-                x = event.pageX;
-                y = event.pageY;
+                var x = event.pageX;
+                var y = event.pageY;
                 if(x>=$(window).width()-10 || y>=$(window).height()-10 || x<=10 || y<=10){
                     stop();
                 }
                 
-                
+                return [x,y];
                 //$("#Pcoords").html("Coords: "+x+"x "+y+"y");
                 //getUv(x,y);
             }
@@ -130,7 +141,7 @@
                     Uy = 0;
                 }
 
-                translate(Ux, Uy, 3);
+                translate(Ux, Uy, x, y, 3);
             }
             
             /**
@@ -139,7 +150,7 @@
             * @param origY y coordinate of the circle
             * @return true if cursor is within the circle
             */
-            function isCaptured(origX, origY){
+            function isCaptured(origX, origY, x, y){
                 if((x>=origX && x<=origX+100)&&(y>=origY && y<=origY+100)){
                     return true;
                 }
@@ -152,14 +163,14 @@
             * @param Uy the y component of the unit vector from circle to cursor
 	    * @param vel the velocity of the circle
             */
-            function translate(Ux, Uy, vel){
+            function translate(Ux, Uy, x, y, vel){
                 var origX = parseFloat($("#mainSvg").css("left"));
                 var origY = parseFloat($("#mainSvg").css("top"));
                 origX += Ux*vel;
                 origY += Uy*vel;
                 $("#mainSvg").css("left", origX);
                 $("#mainSvg").css("top", origY);
-                if(isCaptured(origX, origY)){
+                if(isCaptured(origX, origY, x, y)){
                     stop();
                 }
             }
