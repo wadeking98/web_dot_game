@@ -62,7 +62,18 @@
 
             
             function setup(){
-                $("#startButton").on("click", start);
+                $("#startButton").on("click", function(){
+			var coords = getCoords();
+			var x = coords[0];
+			var y = coords[1];
+
+			t = setInterval(function(){getUv(x,y);}, 1);
+			start(x,y);
+		});
+		$(window).on("mousemove", function(){
+			clearInterval(t);
+		});
+
             }
             
             function stop(){
@@ -71,21 +82,22 @@
                 clearInterval(t);
                 $("#divSvg").css("visibility", "hidden");
                 $("#startButton").css("visibility", "visible");
+
+
             }
             
             /**
             * here is the code to be executed in the "main"
             */
-            function start(){
-		var x;
-		var y;
+            function start(x, y){
 		
-		/*$(window).on("mousemove", funtion(){
-			var coords = getCoords();
-			x = coords[0];
-			y = coords[1];
-		});*/
+		
+		
 		$(window).on("mousemove", function(){
+			clearInterval(t);
+			t = setInterval(function(){
+				getUv(x,y);
+			}, 1);
 			var coords = getCoords();
 			x = coords[0];
 			y = coords[1];
@@ -97,7 +109,7 @@
                $("#Pcoords").css("top", parseInt($(window).height()) - 60);
                $("#mainSvg").css("top", $(window).height()*3/4);
                $("#mainSvg").css("left", $(window).width()/2);
-               t = setInterval(function(){getUv(x,y);}, 1);
+               
             }
             
             /**
